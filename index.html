@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +13,7 @@ body{
     justify-content:center;
     align-items:center;
     min-height:100vh;
+    margin:0;
 }
 
 .container{
@@ -29,12 +30,24 @@ h2{
     margin-bottom:20px;
 }
 
+label{
+    font-weight:bold;
+    display:block;
+    margin-bottom:6px;
+}
+
 input{
     width:100%;
     padding:12px;
     margin-bottom:15px;
     border:1px solid #ccc;
     border-radius:8px;
+}
+
+input[type="color"]{
+    height:50px;
+    padding:4px;
+    cursor:pointer;
 }
 
 button{
@@ -73,17 +86,21 @@ button:hover{
 
     <h2>QR Code Generator</h2>
 
+    <label>Link:</label>
     <input
         type="text"
         id="url"
-        placeholder="https://yoursite.com"
+        placeholder="https://seusite.com.br"
     >
 
     <label>Central Logo:</label>
     <input type="file" id="logo" accept="image/*">
 
+    <label>QR Code Color:</label>
+    <input type="color" id="qrColor" value="#000000">
+
     <button onclick="gerarQRCode()">
-        Create a QR Code
+        Generate QR Code
     </button>
 
     <div id="canvas"></div>
@@ -101,16 +118,19 @@ button:hover{
 <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
 
 <script>
-
 let qrCode;
 
 function gerarQRCode() {
-
-    const url = document.getElementById("url").value.trim();
+    let url = document.getElementById("url").value.trim();
+    const corSelecionada = document.getElementById("qrColor").value;
 
     if (!url) {
         alert("Informe um link.");
         return;
+    }
+
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        url = "https://" + url;
     }
 
     const fileInput = document.getElementById("logo");
@@ -127,17 +147,17 @@ function gerarQRCode() {
             image: imageUrl,
 
             dotsOptions: {
-                color: "#000000",
+                color: corSelecionada,
                 type: "rounded"
             },
 
             cornersSquareOptions: {
-                color: "#000000",
+                color: corSelecionada,
                 type: "extra-rounded"
             },
 
             cornersDotOptions: {
-                color: "#000000",
+                color: corSelecionada,
                 type: "dot"
             },
 
@@ -157,12 +177,10 @@ function gerarQRCode() {
         });
 
         qrCode.append(document.getElementById("canvas"));
-
         document.getElementById("downloadBtn").style.display = "block";
     };
 
     if (fileInput.files.length > 0) {
-
         const reader = new FileReader();
 
         reader.onload = function(e) {
@@ -170,14 +188,12 @@ function gerarQRCode() {
         };
 
         reader.readAsDataURL(fileInput.files[0]);
-
     } else {
         criarQR();
     }
 }
 
 function baixarQRCode() {
-
     if(qrCode){
         qrCode.download({
             name: "qrcode",
